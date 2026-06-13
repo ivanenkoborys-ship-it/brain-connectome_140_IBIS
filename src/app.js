@@ -11,8 +11,13 @@ let levels = [];
 let positions = [];
 let structures = [];
 let nodeMap = {};
+let metadata = {};
 
 async function loadConnectomeDatabase() {
+  if (window.CONNECTOME_DATABASE) {
+    return window.CONNECTOME_DATABASE;
+  }
+
   const response = await fetch(DATABASE_URL, { cache: 'no-store' });
   if (!response.ok) {
     throw new Error(`Cannot load database: ${response.status} ${response.statusText}`);
@@ -21,6 +26,7 @@ async function loadConnectomeDatabase() {
 }
 
 function applyConnectomeDatabase(database) {
+  metadata = database.metadata || {};
   nodes = database.nodes || [];
   edges = database.edges || [];
   colors = database.colors || {};
@@ -30,6 +36,15 @@ function applyConnectomeDatabase(database) {
   positions = database.filters?.positions || [];
   structures = database.filters?.structures || [];
   nodeMap = Object.fromEntries(nodes.map(n => [n.label, n]));
+}
+
+function updateStaticUi() {
+  const modelName = metadata.name || 'Brain Connectome';
+  document.title = `${modelName} Interactive Graph`;
+  byId('modelTitle').textContent = modelName;
+  byId('statRich').textContent = stats.rich_nodes ?? nodes.filter(n => n.rich).length;
+  byId('statIsolated').textContent = stats.isolated_nodes ?? nodes.filter(n => !n.connected).length;
+  byId('weightMin').max = Math.ceil(stats.max_weight || Math.max(...edges.map(e => e.weight || 0), 0));
 }
 
 function showStartupError(error) {
@@ -93,17 +108,17 @@ function nodeHover(n) {
   return `<b>${n.label}</b><br>` +
     `YEO/Buckner: ${n.yeo}<br>` +
     `Rich: ${n.rich ? 'TRUE' : 'FALSE'}<br>` +
-    `Позиция: ${n.position}<br>` +
-    `Уровень: ${n.level}<br>` +
-    `Структура: ${n.structure}<br>` +
+    `РџРѕР·РёС†РёСЏ: ${n.position}<br>` +
+    `РЈСЂРѕРІРµРЅСЊ: ${n.level}<br>` +
+    `РЎС‚СЂСѓРєС‚СѓСЂР°: ${n.structure}<br>` +
     `NEW: (${n.x}, ${n.y}, ${n.z})<br>` +
     `MNI: (${n.xmni}, ${n.ymni}, ${n.zmni})<br>` +
     `Degree: ${n.degree}<br>` +
-    `Сила связей: ${Math.round(n.strength*10)/10}<br>` +
+    `РЎРёР»Р° СЃРІСЏР·РµР№: ${Math.round(n.strength*10)/10}<br>` +
     `Voxels: ${n.voxels}`;
 }
 function edgeHover(e) {
-  return `<b>${e.source}</b> ↔ <b>${e.target}</b><br>weight: ${e.weight}<br>class: ${e.edgeClass}`;
+  return `<b>${e.source}</b> в†” <b>${e.target}</b><br>weight: ${e.weight}<br>class: ${e.edgeClass}`;
 }
 function cubeTrace(n) {
   const d = cubeSizeForNode(n);
@@ -255,7 +270,7 @@ function render() {
   updateTable(vnodes);
   const traces = makeTraces(vnodes, vedges);
   const layout = {
-    title: { text: 'AAL-116 connectome graph: X NEW / Y NEW / Z NEW', font: { size: 18 } },
+    title: { text: `${metadata.name || 'Brain Connectome'}: X NEW / Y NEW / Z NEW`, font: { size: 18 } },
     paper_bgcolor: '#ffffff',
     plot_bgcolor: '#ffffff',
     margin: { l: 0, r: 0, b: 0, t: 46 },
@@ -288,15 +303,17 @@ function resetFilters() {
   byId('richFilter').value = 'all';
   byId('connectedFilter').value = 'all';
   byId('structureFilter').value = 'all';
-  byId('showEdges').checked = true;
+  byId('showEdges').checked = false;
   byId('showLabels').checked = false;
   byId('showOnlyHubs').checked = true;
+  byId('sizeMode').value = 'voxels';
   byId('weightMin').value = 0;
   document.querySelectorAll('#networkChecks input,#positionChecks input,#levelChecks input').forEach(i => i.checked = true);
   document.querySelectorAll('#edgeClassChecks input').forEach(i => i.checked = i.value !== 'weak');
   render();
 }
 function init() {
+  updateStaticUi();
   makeChecks('networkChecks', networks, true);
   makeChecks('positionChecks', positions, false);
   makeChecks('levelChecks', levels, false);

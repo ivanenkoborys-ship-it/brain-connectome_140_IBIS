@@ -1,4 +1,4 @@
-{
+window.CONNECTOME_DATABASE = {
   "schemaVersion": 2,
   "metadata": {
     "name": "AAL-140 Brain Connectome",
@@ -4656,4 +4656,4 @@
       "Vermis_9"
     ]
   }
-}
+};

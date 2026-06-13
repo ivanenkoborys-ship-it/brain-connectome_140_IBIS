@@ -3,20 +3,20 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>AAL-116 Brain Connectome Interactive Graph</title>
+  <title>Brain Connectome Interactive Graph</title>
   <link rel="stylesheet" href="src/styles.css" />
 </head>
 <body>
 <div id="app">
   <aside id="sidebar">
-    <h1>AAL-116 Brain Connectome</h1>
-    <div class="subtitle">Интерактивная 3D-модель: узлы по координатам <b>X NEW/Y NEW/Z NEW</b>, цвет по Yeo/Buckner-сети, rich-club как кубы, связи из матрицы.</div>
+    <h1 id="modelTitle">Brain Connectome</h1>
+    <div class="subtitle" id="modelSubtitle">Интерактивная 3D-модель: узлы по координатам <b>X NEW/Y NEW/Z NEW</b>, цвет по Yeo/Buckner-сети, rich-club как кубы, связи из матрицы.</div>
 
     <div class="statgrid">
-      <div class="stat"><b id="statNodes">116</b><span>видимых узлов</span></div>
-      <div class="stat"><b id="statEdges">285</b><span>видимых связей</span></div>
-      <div class="stat"><b>12</b><span>rich-club узлов</span></div>
-      <div class="stat"><b>43</b><span>изолированных точек</span></div>
+      <div class="stat"><b id="statNodes">0</b><span>видимых узлов</span></div>
+      <div class="stat"><b id="statEdges">0</b><span>видимых связей</span></div>
+      <div class="stat"><b id="statRich">0</b><span>rich-club узлов</span></div>
+      <div class="stat"><b id="statIsolated">0</b><span>изолированных точек</span></div>
     </div>
 
     <h2>Фильтры</h2>
@@ -61,19 +61,19 @@
     </select>
 
     <h2>Связи</h2>
-    <div class="checkline"><input type="checkbox" id="showEdges" checked /> <span>Показывать линии связей</span></div>
+    <div class="checkline"><input type="checkbox" id="showEdges" /> <span>Показывать линии связей</span></div>
     <label>Минимальный вес связи: <span id="weightValue">0</span></label>
-    <input id="weightMin" type="range" min="0" max="7722" value="0" step="1" />
+    <input id="weightMin" type="range" min="0" max="0" value="0" step="1" />
     <div class="checks" id="edgeClassChecks"></div>
     <div class="note">Классы связей рассчитаны по квантилям: weak &lt; Q50, medium Q50-Q75, strong Q75-Q90, top 10% &gt; Q90.</div>
 
     <h2>Отображение</h2>
     <div class="checkline"><input type="checkbox" id="showLabels" /> <span>Подписывать узлы</span></div>
-    <div class="checkline"><input type="checkbox" id="showOnlyHubs" checked /> <span>Подписывать только хабы при включённых подписях</span></div>
+    <div class="checkline"><input type="checkbox" id="showOnlyHubs" checked /> <span>Подписывать только хабы при включенных подписях</span></div>
     <label>Размер узлов</label>
     <select id="sizeMode">
       <option value="strength">По силе связей</option>
-      <option value="voxels">По объёму AAL-региона</option>
+      <option value="voxels" selected>По объему AAL-региона</option>
       <option value="constant">Одинаковый</option>
     </select>
 
@@ -101,7 +101,9 @@
     <div id="plot"></div>
   </main>
 </div>
+
   <script src="vendor/plotly-3.3.1.min.js"></script>
+  <script src="data/connectome-data.js"></script>
   <script src="src/app.js"></script>
 </body>
 </html>
